@@ -1,6 +1,6 @@
 {
   "name": "png-diff",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Small PNG diff utility, written in pure JS for Node.",
   "main": "index.js",
   "dependencies": {
