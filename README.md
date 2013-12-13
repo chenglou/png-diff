@@ -27,7 +27,7 @@ PNGDiff.measureDiff('1.png', '2.png', function(err, diffMetric) {
 var PNGDiff = require('png-diff');
 
 PNGDiff.outputDiff('1.png', '2.png', 'output.png', function(err) {
-  if (err) return err;
+  if (err) throw err;
   // highlights the difference in red
   console.log('Diff saved!');
 });
