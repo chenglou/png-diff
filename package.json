@@ -4,9 +4,7 @@
   "description": "Small PNG diff utility, written in pure JS for Node.",
   "main": "index.js",
   "dependencies": {
-    "pngjs": "~0.4.0",
-    "colors": "~0.6.2",
-    "png-js": "~0.1.1"
+    "pngjs": "~0.4.0"
   },
   "devDependencies": {},
   "scripts": {
