@@ -7,6 +7,8 @@ npm install png-diff
 
 ## Usage
 
+_Check out the example folder._
+
 ### Get a diff value between two images
 
 ```js
