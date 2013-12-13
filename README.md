@@ -1,5 +1,5 @@
 # PNG Diff
-FSmall PNG diff utility, written in pure JS for Node.ast, light and hassle-free JavaScript data structures, written in CoffeeScript.
+Small PNG diff utility, written in pure JS for Node.
 
 ```bash
 npm install png-diff
