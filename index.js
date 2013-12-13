@@ -2,16 +2,23 @@ var fs = require('fs');
 var png = require('pngjs').PNG;
 
 function _loadImage(path, done) {
-  fs.createReadStream(path).pipe(new png()).on('parsed', function() {
+  var stream = fs.createReadStream(path)
+
+  stream.on('error', done);
+  stream.pipe(new png()).on('parsed', function() {
     // `pack` is png's method for outputting the diff png
-    done(this.data, this.pack.bind(this));
+    done(null, this.data, this.pack.bind(this));
   });
 }
 
 function _loadImages(imagePath1, imagePath2, done) {
-  _loadImage(imagePath1, function(data1, packMethod) {
-    _loadImage(imagePath2, function(data2) {
-      done(data1, data2, packMethod);
+  _loadImage(imagePath1, function(err, data1, packMethod) {
+    if (err) return done(err);
+
+    _loadImage(imagePath2, function(err, data2) {
+      if (err) return done(err);
+
+      done(null, data1, data2, packMethod);
     });
   });
 }
@@ -22,19 +29,23 @@ function _validateDataForComparison(data1, data2) {
 }
 
 function measureDiff(imagePath1, imagePath2, done) {
-  _loadImages(imagePath1, imagePath2, function(data1, data2) {
+  _loadImages(imagePath1, imagePath2, function(err, data1, data2) {
+    if (err) return done(err);
+
     _validateDataForComparison(data1, data2);
     var i = 0;
     while(data1[i] != null) {
-      if (data1[i] !== data2[i]) return done(1);
+      if (data1[i] !== data2[i]) return done(null, 1);
       i++;
     }
-    return done(0);
+    return done(null, 0);
   });
 }
 
 function outputDiff(imagePath1, imagePath2, outputPath, done) {
-  _loadImages(imagePath1, imagePath2, function(data1, data2, packMethod) {
+  _loadImages(imagePath1, imagePath2, function(err, data1, data2, packMethod) {
+    if (err) return done(err);
+
     _validateDataForComparison(data1, data2);
     var i = 0;
 
@@ -65,7 +76,7 @@ function outputDiff(imagePath1, imagePath2, outputPath, done) {
     }
 
     packMethod().pipe(fs.createWriteStream(outputPath));
-    done();
+    done(null);
   });
 }
 

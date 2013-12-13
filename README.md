@@ -12,7 +12,8 @@ npm install png-diff
 ```js
 var PNGDiff = require('png-diff');
 
-PNGDiff.measureDiff('1.png', '2.png', function(diffMetric) {
+PNGDiff.measureDiff('1.png', '2.png', function(err, diffMetric) {
+  if (err) throw err;
   // returns 0 if every pixel's the same; return 1 otherwise. Currently, these
   // are the only two possible metric values; possiblity to tweak them in the
   // future
@@ -25,7 +26,8 @@ PNGDiff.measureDiff('1.png', '2.png', function(diffMetric) {
 ```js
 var PNGDiff = require('png-diff');
 
-PNGDiff.outputDiff('1.png', '2.png', 'output.png', function() {
+PNGDiff.outputDiff('1.png', '2.png', 'output.png', function(err) {
+  if (err) return err;
   // highlights the difference in red
   console.log('Diff saved!');
 });
