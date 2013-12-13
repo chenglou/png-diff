@@ -17,7 +17,7 @@ function _loadImages(imagePath1, imagePath2, done) {
 }
 
 function _validateDataForComparison(data1, data2) {
-  if (!data1.length || !data2.length) throw 'Empty image data.'
+  if (!data1.length || !data2.length) throw 'Empty image data.';
   if (data1.length !== data2.length) throw 'Images not the same dimension.';
 }
 
@@ -72,4 +72,4 @@ function outputDiff(imagePath1, imagePath2, outputPath, done) {
 module.exports = {
   measureDiff: measureDiff,
   outputDiff: outputDiff
-}
+};
