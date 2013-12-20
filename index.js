@@ -24,15 +24,17 @@ function _loadImages(imagePath1, imagePath2, done) {
 }
 
 function _validateDataForComparison(data1, data2) {
-  if (!data1.length || !data2.length) throw 'Empty image data.';
-  if (data1.length !== data2.length) throw 'Images not the same dimension.';
+  if (!data1.length || !data2.length) return 'Empty image data.';
+  if (data1.length !== data2.length) return 'Images not the same dimension.';
 }
 
 function measureDiff(imagePath1, imagePath2, done) {
   _loadImages(imagePath1, imagePath2, function(err, data1, data2) {
     if (err) return done(err);
 
-    _validateDataForComparison(data1, data2);
+    var errMessage = _validateDataForComparison(data1, data2);
+    if (errMessage) return done(errMessage);
+
     var i = 0;
     while(data1[i] != null) {
       if (data1[i] !== data2[i]) return done(null, 1);
@@ -46,7 +48,9 @@ function outputDiff(imagePath1, imagePath2, outputPath, done) {
   _loadImages(imagePath1, imagePath2, function(err, data1, data2, packMethod) {
     if (err) return done(err);
 
-    _validateDataForComparison(data1, data2);
+    var errMessage = _validateDataForComparison(data1, data2);
+    if (errMessage) return done(errMessage);
+
     var i = 0;
 
     // chunk of 4 values: r g b a
