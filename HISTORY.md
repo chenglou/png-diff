@@ -1,3 +1,6 @@
+### 0.1.2 (February 10th 2014)
+- Show images dimensions when a size mismatch happens.
+
 ### 0.1.1 (December 20th 2013)
 - No more error throwing internally; better async compatibility.
 
