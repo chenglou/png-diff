@@ -4,8 +4,8 @@ var imageSize = require('image-size');
 var fs = require('fs');
 var png = require('pngjs').PNG;
 
-function _loadImage(path, done) {
-  var stream = fs.createReadStream(path);
+function _loadImage(imagePath, done) {
+  var stream = fs.createReadStream(imagePath);
 
   stream.on('error', done);
   stream.pipe(new png()).on('parsed', function() {
@@ -92,8 +92,9 @@ function outputDiff(imagePath1, imagePath2, outputPath, done) {
       i += 4;
     }
 
-    packMethod().pipe(fs.createWriteStream(outputPath));
-    done(null);
+    packMethod().pipe(fs.createWriteStream(outputPath))
+      .once('error', done)
+      .on('close', done);
   });
 }
 
