@@ -9,7 +9,7 @@ npm install png-diff
 
 (_Check out the example folder._)
 
-All three methods take two image paths/streams/buffers.
+All three methods take two image paths/streams/buffers as input.
 
 ### Get a diff value between two images
 
@@ -47,7 +47,7 @@ var PNGDiff = require('png-diff');
 var readStream1 = fs.createReadStream('1.png');
 PNGDiff.outputDiffStream(readStream1, '2.png', function(err, outputStream) {
   if (err) throw err;
-  // do whatever with the stream
+  outputStream.pipe(fs.createWriteStream('diffOutput2.png'));
 });
 ```
 

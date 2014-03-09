@@ -21,5 +21,5 @@ PNGDiff.outputDiff('1.png', image2Stream, 'diffOutput.png', function(err) {
 var image1Stream = fs.createReadStream('1.png');
 PNGDiff.outputDiffStream(image1Stream, '2.png', function(err, outputStream) {
   if (err) throw err;
-  // do whatever with the stream
+  outputStream.pipe(fs.createWriteStream('diffOutput2.png'));
 });

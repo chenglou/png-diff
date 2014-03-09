@@ -36,7 +36,7 @@ describe('measureDiff', function() {
     img2Buf = fs.readFileSync(img2Path);
   });
 
-  it('should error for misinput 1', function(done) {
+  it('should error for misinput', function(done) {
     PNGDiff.measureDiff('bla', img1Path, function(err, res) {
       err.message.should.equal("ENOENT, open 'bla'");
       done();
@@ -91,7 +91,7 @@ describe('outputDiffStream', function() {
     img2Buf = fs.readFileSync(img2Path);
   });
 
-  it('should error for misinput 1', function(done) {
+  it('should error for misinput', function(done) {
     PNGDiff.outputDiffStream('bla', img1Path, function(err, res) {
       err.message.should.equal("ENOENT, open 'bla'");
       done();
@@ -144,7 +144,7 @@ describe('outputDiff', function() {
     }
   });
 
-  it('should error for misinput 1', function(done) {
+  it('should error for misinput', function(done) {
     PNGDiff.outputDiff('bla', img1Path, 'dest', function(err) {
       err.message.should.equal("ENOENT, open 'bla'");
       done();
