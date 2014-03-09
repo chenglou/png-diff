@@ -3,6 +3,7 @@
 var fs = require('fs');
 var PNG = require('pngjs').PNG;
 var Stream = require('stream');
+var streamifier = require('streamifier');
 var util = require('util');
 
 function _getDimsMismatchErrMsg(dims1, dims2) {
@@ -15,37 +16,38 @@ function _getDimsMismatchErrMsg(dims1, dims2) {
   );
 }
 
-function _turnPathsOrStreamIntoStreams(streamOrPath1, streamOrPath2, done) {
-  var readStreamErrorCount = 0;
-  function errorCb(err) {
-    // already called error
-    if (readStreamErrorCount === 1) return;
-
-    readStreamErrorCount++;
-    done(err);
+function _turnPathOrStreamOrBufIntoStream(streamOrBufOrPath, done) {
+  if (typeof streamOrBufOrPath === 'string') {
+    streamOrBufOrPath = fs.createReadStream(streamOrBufOrPath).once('error', done);
   }
 
-  if (typeof streamOrPath1 === 'string') {
-    streamOrPath1 = fs.createReadStream(streamOrPath1).once('error', errorCb);
+  if (streamOrBufOrPath instanceof Buffer) {
+    streamOrBufOrPath = streamifier.createReadStream(streamOrBufOrPath).once('error', done);
   }
 
-  if (typeof streamOrPath2 === 'string') {
-    streamOrPath2 = fs.createReadStream(streamOrPath2).once('error', errorCb);
+  if (!(streamOrBufOrPath instanceof Stream)) {
+    return done(
+      new Error('Argument needs to be a valid read path, stream or buffer.')
+    );
   }
 
-  if (!(streamOrPath1 instanceof Stream)) {
-    return done(new Error('First argument needs to be a valid read stream.'));
-  }
-
-  if (!(streamOrPath2 instanceof Stream)) {
-    return done(new Error('Second argument needs to be a valid read stream.'));
-  }
-
-  done(null, streamOrPath1, streamOrPath2);
+  done(null, streamOrBufOrPath);
 }
 
-function measureDiff(streamOrPath1, streamOrPath2, done) {
-  _turnPathsOrStreamIntoStreams(streamOrPath1, streamOrPath2, function(err, stream1, stream2) {
+function _turnPathsOrStreamsOrBufsIntoStreams(streamOrBufOrPath1, streamOrBufOrPath2, done) {
+  _turnPathOrStreamOrBufIntoStream(streamOrBufOrPath1, function(err, res1) {
+    if (err) return done(err);
+
+    _turnPathOrStreamOrBufIntoStream(streamOrBufOrPath2, function(err, res2) {
+      if (err) return done(err);
+
+      done(null, res1, res2);
+    });
+  });
+}
+
+function measureDiff(streamOrBufOrPath1, streamOrBufOrPath2, done) {
+  _turnPathsOrStreamsOrBufsIntoStreams(streamOrBufOrPath1, streamOrBufOrPath2, function(err, stream1, stream2) {
     if (err) return done(err);
 
     stream1.pipe(new PNG()).once('error', done).on('parsed', function() {
@@ -69,8 +71,8 @@ function measureDiff(streamOrPath1, streamOrPath2, done) {
   });
 }
 
-function outputDiffStream(streamOrPath1, streamOrPath2, done) {
-  _turnPathsOrStreamIntoStreams(streamOrPath1, streamOrPath2, function(err, stream1, stream2) {
+function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, done) {
+  _turnPathsOrStreamsOrBufsIntoStreams(streamOrBufOrPath1, streamOrBufOrPath2, function(err, stream1, stream2) {
     if (err) return done(err);
 
     var writeStream = new PNG();
@@ -118,8 +120,8 @@ function outputDiffStream(streamOrPath1, streamOrPath2, done) {
   });
 }
 
-function outputDiff(streamOrPath1, streamOrPath2, destPath, done) {
-  outputDiffStream(streamOrPath1, streamOrPath2, function(err, res) {
+function outputDiff(streamOrBufOrPath1, streamOrBufOrPath2, destPath, done) {
+  outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, function(err, res) {
     if (err) return done(err);
 
     res

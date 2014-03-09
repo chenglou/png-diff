@@ -9,14 +9,15 @@ npm install png-diff
 
 (_Check out the example folder._)
 
-The three methods all take two image paths or streams.
+All three methods take two image paths/streams/buffers.
 
 ### Get a diff value between two images
 
 ```js
 var PNGDiff = require('png-diff');
 
-PNGDiff.measureDiff('1.png', '2.png', function(err, diffMetric) {
+var image2Buffer = fs.readFileSync('2.png');
+PNGDiff.measureDiff('1.png', image2Buffer, function(err, diffMetric) {
   if (err) throw err;
   // returns 0 if every pixel's the same; return 1 otherwise. Currently, these
   // are the only two possible metric values; possiblity to tweak them in the
@@ -30,7 +31,6 @@ PNGDiff.measureDiff('1.png', '2.png', function(err, diffMetric) {
 ```js
 var PNGDiff = require('png-diff');
 
-// independent method. Doesn't need to call `measureDiff` first
 var readStream2 = fs.createReadStream('2.png');
 PNGDiff.outputDiff('1.png', readStream2, 'diffOutput.png', function(err) {
   if (err) throw err;

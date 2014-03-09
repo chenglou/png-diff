@@ -2,6 +2,9 @@ Legend:
   - [I]: improvement
   - [F]: fix
 
+### 0.2.1 (March 9nd 2014)
+- [I] All three methods now accept buffers as input too.
+
 ## 0.2.0 (March 8nd 2014)
 - [I] New `outputDiffStream` that gives you back a stream. See README and example folder.
 - [I] All three methods can now accept streams, in addition to the old file path arguments.

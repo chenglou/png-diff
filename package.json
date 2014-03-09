@@ -1,10 +1,11 @@
 {
   "name": "png-diff",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Small PNG diff utility, written in pure JS for Node.",
   "main": "index.js",
   "dependencies": {
-    "pngjs": "~0.4.0"
+    "pngjs": "~0.4.0",
+    "streamifier": "^0.1.0"
   },
   "devDependencies": {
     "concat-stream": "^1.4.3",
