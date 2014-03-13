@@ -2,6 +2,9 @@ Legend:
   - [I]: improvement
   - [F]: fix
 
+## 0.3.0 (March 12th 2014)
+- [F] Deprecate `measureDiff`. The `diffMetric` is now the third argument to the `outputDiffStream` callback and second for `outputDiff`. The underlying reason is that it was possible to measure streams and then do `outputDiff`, except by then, the stream would already have been piped by `measureDiff`, which causes weird bug messages.
+
 ### 0.2.1 (March 9th 2014)
 - [I] All three methods now accept buffers as input too.
 

@@ -46,35 +46,13 @@ function _turnPathsOrStreamsOrBufsIntoStreams(streamOrBufOrPath1, streamOrBufOrP
   });
 }
 
-function measureDiff(streamOrBufOrPath1, streamOrBufOrPath2, done) {
-  _turnPathsOrStreamsOrBufsIntoStreams(streamOrBufOrPath1, streamOrBufOrPath2, function(err, stream1, stream2) {
-    if (err) return done(err);
-
-    stream1.pipe(new PNG()).once('error', done).on('parsed', function() {
-      var data1 = this.data;
-      var dims1 = [this.width, this.height];
-      stream2.pipe(new PNG()).once('error', done).on('parsed', function() {
-        var data2 = this.data;
-        var dims2 = [this.width, this.height];
-
-        if (data1.length !== data2.length) {
-          return done(new Error(_getDimsMismatchErrMsg(dims1, dims2)));
-        }
-
-        for (var i = 0; i < data1.length; i++) {
-          if (data1[i] !== data2[i]) return done(null, 1);
-        }
-
-        return done(null, 0);
-      });
-    });
-  });
-}
-
 function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, done) {
   _turnPathsOrStreamsOrBufsIntoStreams(streamOrBufOrPath1, streamOrBufOrPath2, function(err, stream1, stream2) {
     if (err) return done(err);
 
+    // diff metric is either 0 or 1 for now. Might support outputting some diff
+    // value in the future
+    var diffMetric = 0;
     var writeStream = new PNG();
     stream1.pipe(writeStream).once('error', done).on('parsed', function() {
       var data1 = this.data;
@@ -97,6 +75,7 @@ function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, done) {
               data1[i + 2] !== data2[i + 2] ||
               data1[i + 3] !== data2[i + 3]) {
 
+            diffMetric = 1;
             // turn the diff pixels redder. No change to alpha
             var addRed = 60;
 
@@ -113,7 +92,7 @@ function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, done) {
           }
           i += 4;
         }
-        return done(null, writeStream.pack());
+        return done(null, writeStream.pack(), diffMetric);
       });
     });
 
@@ -121,18 +100,17 @@ function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, done) {
 }
 
 function outputDiff(streamOrBufOrPath1, streamOrBufOrPath2, destPath, done) {
-  outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, function(err, res) {
+  outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, function(err, res, diffMetric) {
     if (err) return done(err);
 
     res
       .pipe(fs.createWriteStream(destPath))
       .once('error', done)
-      .on('close', done);
+      .on('close', done.bind(null, null, diffMetric));
   });
 }
 
 module.exports = {
-  measureDiff: measureDiff,
   outputDiff: outputDiff,
   outputDiffStream: outputDiffStream
 };

@@ -9,44 +9,31 @@ npm install png-diff
 
 (_Check out the example folder._)
 
-All three methods take two image paths/streams/buffers as input.
-
-### Get a diff value between two images
+Both methods take two image paths/streams/buffers as input.
 
 ```js
+var fs = require('fs');
 var PNGDiff = require('png-diff');
 
-var image2Buffer = fs.readFileSync('2.png');
-PNGDiff.measureDiff('1.png', image2Buffer, function(err, diffMetric) {
+var image2Stream = fs.createReadStream('2.png');
+PNGDiff.outputDiff('1.png', image2Stream, 'diffOutput.png', function(err, diffMetric) {
   if (err) throw err;
   // returns 0 if every pixel's the same; return 1 otherwise. Currently, these
   // are the only two possible metric values; possiblity to tweak them in the
   // future
-  console.log(diffMetric);
-});
-```
-
-### Save a diff output
-
-```js
-var PNGDiff = require('png-diff');
-
-var readStream2 = fs.createReadStream('2.png');
-PNGDiff.outputDiff('1.png', readStream2, 'diffOutput.png', function(err) {
-  if (err) throw err;
+  console.log(diffMetric === 1 ? 'Difference detected.' : 'No difference');
   // highlights the difference in red
   console.log('Diff saved!');
 });
-```
 
-### Get the diff stream rather than the output
-
-```js
-var PNGDiff = require('png-diff');
-
-var readStream1 = fs.createReadStream('1.png');
-PNGDiff.outputDiffStream(readStream1, '2.png', function(err, outputStream) {
+var image1Buffer = fs.createReadStream('1.png');
+PNGDiff.outputDiffStream(image1Buffer, '2.png', function(err, outputStream, diffMetric) {
   if (err) throw err;
+
+  if (diffMetric === 0) {
+    console.log('No difference, no need to output diff result.');
+    return;
+  }
   outputStream.pipe(fs.createWriteStream('diffOutput2.png'));
 });
 ```
