@@ -30,61 +30,6 @@ function _compareDiff(actualStream, done) {
   }));
 }
 
-describe('measureDiff', function() {
-  beforeEach(function() {
-    img2Stream = fs.createReadStream(img2Path);
-    img2Buf = fs.readFileSync(img2Path);
-  });
-
-  it('should error for misinput', function(done) {
-    PNGDiff.measureDiff('bla', img1Path, function(err, res) {
-      err.message.should.equal("ENOENT, open 'bla'");
-      done();
-    });
-  });
-
-  it('should error for incompatible image dimensions', function(done) {
-    PNGDiff.measureDiff(img1Path, imgDotPath, function(err, res) {
-      err.message.should.equal(
-        'Images not the same dimension. First: 1000x494. Second: 1x1.'
-      );
-      done();
-    });
-  });
-
-  it('should accept a stream', function(done) {
-    PNGDiff.measureDiff(img1Path, img2Stream, function(err, res) {
-      should.not.exist(err);
-      res.should.equal(1);
-      done();
-    });
-  });
-
-  it('should accept a buffer', function(done) {
-    PNGDiff.measureDiff(img2Path, img2Buf, function(err, res) {
-      should.not.exist(err);
-      res.should.equal(0);
-      done();
-    });
-  });
-
-  it('should return a diff measure', function(done) {
-    PNGDiff.measureDiff(img1Path, img2Path, function(err, res) {
-      should.not.exist(err);
-      res.should.equal(1);
-      done();
-    });
-  });
-
-  it('should return a diff metric of 0 for identical images', function(done) {
-    PNGDiff.measureDiff(img1Path, img1Path, function(err, res) {
-      should.not.exist(err);
-      res.should.equal(0);
-      done();
-    });
-  });
-});
-
 describe('outputDiffStream', function() {
   beforeEach(function() {
     img2Stream = fs.createReadStream(img2Path);
