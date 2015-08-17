@@ -1,7 +1,7 @@
 'use strict';
 
 var fs = require('fs');
-var PNG = require('pngjs').PNG;
+var PNG = require('pngjs2').PNG;
 var Stream = require('stream');
 var streamifier = require('streamifier');
 var util = require('util');
