@@ -22,7 +22,9 @@ function _compareDiff(actualStream, done) {
 
       for (var i = 0; i < buf1.length; i++) {
         if (buf1[i] !== buf2[i]) {
-          done(false);
+          fs.writeFileSync(__dirname + 'fixtures/failTest.png', buf1);
+          done(new Error('Test failed, image output at fixtures/failTest.png'));
+          return;
         }
       }
       done();
