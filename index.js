@@ -46,17 +46,37 @@ function _turnPathsOrStreamsOrBufsIntoStreams(streamOrBufOrPath1, streamOrBufOrP
   });
 }
 
-function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, done) {
+/**
+ * options
+ * 	clearDiff: false - turns off/on the highlighting feature
+ *	bgColor: [0,0,0,0] - background color for an output image 
+ *	inputHasAlpha: true - indicates whether an output image will have an alpha channel or not
+ */
+
+function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, clearDiff, done) {
+  // backwards compatibility	
+  if(typeof clearDiff == 'function'){
+	  done = clearDiff;
+	  clearDiff = false;
+  }
   _turnPathsOrStreamsOrBufsIntoStreams(streamOrBufOrPath1, streamOrBufOrPath2, function(err, stream1, stream2) {
     if (err) return done(err);
 
     // diff metric is either 0 or 1 for now. Might support outputting some diff
     // value in the future
     var diffMetric = 0;
-    var writeStream = new PNG();
+    
+   	var writeStream = new PNG();
+    
     stream1.pipe(writeStream).once('error', done).on('parsed', function() {
       var data1 = this.data;
       var dims1 = [this.width, this.height];
+      if(clearDiff){
+    	  writeStream = new PNG({
+        	  width: this.width,
+        	  height: this.height
+    	  });
+      }
       stream2.pipe(new PNG()).once('error', done).on('parsed', function() {
         var data2 = this.data;
         var dims2 = [this.width, this.height];
@@ -76,18 +96,26 @@ function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, done) {
               data1[i + 3] !== data2[i + 3]) {
 
             diffMetric = 1;
-            // turn the diff pixels redder. No change to alpha
-            var addRed = 60;
+            // draw only differences on the output image
+            if(clearDiff){
+          	  data[i] = data2[i];
+              data[i + 1] = data2[i + 1];
+              data[i + 2] = data2[i + 2];
+              data[i + 3] = data2[i + 3];
+            }else{
+                // turn the diff pixels redder. No change to alpha
+                var addRed = 60;
 
-            if (data2[i] + addRed <= 255) {
-              data[i] = data2[i] + addRed;
-              data[i + 1] = Math.max(data2[i + 1] - addRed / 3, 0);
-              data[i + 2] = Math.max(data2[i + 2] - addRed / 3, 0);
-            } else {
-              // too bright; subtract G and B instead
-              data[i] = data2[i];
-              data[i + 1] = Math.max(data2[i + 1] - addRed, 0);
-              data[i + 2] = Math.max(data2[i + 2] - addRed, 0);
+                if (data2[i] + addRed <= 255) {
+                  data[i] = data2[i] + addRed;
+                  data[i + 1] = Math.max(data2[i + 1] - addRed / 3, 0);
+                  data[i + 2] = Math.max(data2[i + 2] - addRed / 3, 0);
+                } else {
+                  // too bright; subtract G and B instead
+                  data[i] = data2[i];
+                  data[i + 1] = Math.max(data2[i + 1] - addRed, 0);
+                  data[i + 2] = Math.max(data2[i + 2] - addRed, 0);
+                }
             }
           }
           i += 4;
@@ -99,8 +127,13 @@ function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, done) {
   });
 }
 
-function outputDiff(streamOrBufOrPath1, streamOrBufOrPath2, destPath, done) {
-  outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, function(err, res, diffMetric) {
+function outputDiff(streamOrBufOrPath1, streamOrBufOrPath2, destPath, clearDiff, done) {
+  // backwards compatibility	
+  if(typeof clearDiff == 'function'){
+	  done = clearDiff;
+	  clearDiff = false;
+  }
+  outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, options, function(err, res, diffMetric) {
     if (err) return done(err);
 
     res
