@@ -4,7 +4,7 @@
   "description": "Small PNG diff utility, written in pure JS for Node.",
   "main": "index.js",
   "dependencies": {
-    "pngjs2": "^1.0.0",
+    "pngjs": "^2.2.0",
     "streamifier": "^0.1.0"
   },
   "devDependencies": {

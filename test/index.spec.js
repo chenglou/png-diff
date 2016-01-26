@@ -40,7 +40,7 @@ describe('outputDiffStream', function() {
 
   it('should error for misinput', function(done) {
     PNGDiff.outputDiffStream('bla', img1Path, function(err, res) {
-      err.message.should.equal("ENOENT, open 'bla'");
+      err.message.should.equal("ENOENT: no such file or directory, open 'bla'");
       done();
     });
   });
@@ -93,7 +93,7 @@ describe('outputDiff', function() {
 
   it('should error for misinput', function(done) {
     PNGDiff.outputDiff('bla', img1Path, 'dest', function(err) {
-      err.message.should.equal("ENOENT, open 'bla'");
+      err.message.should.equal("ENOENT: no such file or directory, open 'bla'");
       done();
     });
   });
