@@ -9,15 +9,31 @@ var PNGDiff = require('../');
 var img1Path = 'test/fixtures/1.png';
 var img2Path = 'test/fixtures/2.png';
 var imgDotPath = 'test/fixtures/dot.png';
-var imgExpected12DiffPath = 'test/fixtures/expected12Diff.png';
 var tempImgPath = 'temp.png';
 
 var img2Stream;
 var img2Buf;
 
-function _compareDiff(actualStream, done) {
+function _compareDiff1(actualStream, done) {
   actualStream.pipe(concat(function(buf1) {
-    fs.createReadStream(imgExpected12DiffPath).pipe(concat(function(buf2) {
+    fs.createReadStream('test/fixtures/expected12Diff.png').pipe(concat(function(buf2) {
+      buf1.length.should.equal(buf2.length);
+
+      for (var i = 0; i < buf1.length; i++) {
+        if (buf1[i] !== buf2[i]) {
+          fs.writeFileSync(__dirname + 'fixtures/failTest.png', buf1);
+          done(new Error('Test failed, image output at fixtures/failTest.png'));
+          return;
+        }
+      }
+      done();
+    }));
+  }));
+}
+
+function _compareDiff2(actualStream, done) {
+  actualStream.pipe(concat(function(buf1) {
+    fs.createReadStream('test/fixtures/expected12DiffTransparent.png').pipe(concat(function(buf2) {
       buf1.length.should.equal(buf2.length);
 
       for (var i = 0; i < buf1.length; i++) {
@@ -58,7 +74,7 @@ describe('outputDiffStream', function() {
     PNGDiff.outputDiffStream(img1Path, img2Stream, function(err, res) {
       should.not.exist(err);
 
-      _compareDiff(res, done);
+      _compareDiff1(res, done);
     });
   });
 
@@ -66,7 +82,7 @@ describe('outputDiffStream', function() {
     PNGDiff.outputDiffStream(img1Path, img2Buf, function(err, res) {
       should.not.exist(err);
 
-      _compareDiff(res, done);
+      _compareDiff1(res, done);
     });
   });
 
@@ -74,7 +90,15 @@ describe('outputDiffStream', function() {
     PNGDiff.outputDiffStream(img1Path, img2Path, function(err, res) {
       should.not.exist(err);
 
-      _compareDiff(res, done);
+      _compareDiff1(res, done);
+    });
+  });
+
+  it('should optionally output identical pixels as transparent', function(done) {
+    PNGDiff.outputDiffStream(img1Path, img2Path, true, function(err, res) {
+      should.not.exist(err);
+
+      _compareDiff2(res, done);
     });
   });
 });
@@ -111,7 +135,7 @@ describe('outputDiff', function() {
     PNGDiff.outputDiff(img1Path, img2Stream, tempImgPath, function(err) {
       should.not.exist(err);
 
-      _compareDiff(fs.createReadStream(tempImgPath), done);
+      _compareDiff1(fs.createReadStream(tempImgPath), done);
     });
   });
 
@@ -119,7 +143,7 @@ describe('outputDiff', function() {
     PNGDiff.outputDiff(img1Path, img2Buf, tempImgPath, function(err) {
       should.not.exist(err);
 
-      _compareDiff(fs.createReadStream(tempImgPath), done);
+      _compareDiff1(fs.createReadStream(tempImgPath), done);
     });
   });
 
@@ -127,7 +151,15 @@ describe('outputDiff', function() {
     PNGDiff.outputDiff(img1Path, img2Path, tempImgPath, function(err) {
       should.not.exist(err);
 
-      _compareDiff(fs.createReadStream(tempImgPath), done);
+      _compareDiff1(fs.createReadStream(tempImgPath), done);
+    });
+  });
+
+  it('should optionally output identical pixels as transparent', function(done) {
+    PNGDiff.outputDiff(img1Path, img2Path, tempImgPath, true, function(err, res) {
+      should.not.exist(err);
+
+      _compareDiff2(fs.createReadStream(tempImgPath), done);
     });
   });
 });
