@@ -1,7 +1,7 @@
 'use strict';
 
 var fs = require('fs');
-var PNG = require('pngjs2').PNG;
+var PNG = require('pngjs').PNG;
 var Stream = require('stream');
 var streamifier = require('streamifier');
 var util = require('util');
@@ -47,17 +47,14 @@ function _turnPathsOrStreamsOrBufsIntoStreams(streamOrBufOrPath1, streamOrBufOrP
 }
 
 /**
- * options
- * 	clearDiff: false - turns off/on the highlighting feature
- *	bgColor: [0,0,0,0] - background color for an output image 
- *	inputHasAlpha: true - indicates whether an output image will have an alpha channel or not
+ * option
+ * 	outputIdenticalPixelsAsTransparent: false - turns off/on the highlighting feature
  */
-
-function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, clearDiff, done) {
-  // backwards compatibility	
-  if(typeof clearDiff == 'function'){
-	  done = clearDiff;
-	  clearDiff = false;
+function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, outputIdenticalPixelsAsTransparent, done) {
+  // first format, without option
+  if(typeof outputIdenticalPixelsAsTransparent == 'function'){
+	  done = outputIdenticalPixelsAsTransparent;
+	  outputIdenticalPixelsAsTransparent = false;
   }
   _turnPathsOrStreamsOrBufsIntoStreams(streamOrBufOrPath1, streamOrBufOrPath2, function(err, stream1, stream2) {
     if (err) return done(err);
@@ -65,13 +62,13 @@ function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, clearDiff, don
     // diff metric is either 0 or 1 for now. Might support outputting some diff
     // value in the future
     var diffMetric = 0;
-    
+
    	var writeStream = new PNG();
-    
+
     stream1.pipe(writeStream).once('error', done).on('parsed', function() {
       var data1 = this.data;
       var dims1 = [this.width, this.height];
-      if(clearDiff){
+      if(outputIdenticalPixelsAsTransparent){
     	  writeStream = new PNG({
         	  width: this.width,
         	  height: this.height
@@ -97,7 +94,7 @@ function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, clearDiff, don
 
             diffMetric = 1;
             // draw only differences on the output image
-            if(clearDiff){
+            if(outputIdenticalPixelsAsTransparent){
           	  data[i] = data2[i];
               data[i + 1] = data2[i + 1];
               data[i + 2] = data2[i + 2];
@@ -127,13 +124,13 @@ function outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, clearDiff, don
   });
 }
 
-function outputDiff(streamOrBufOrPath1, streamOrBufOrPath2, destPath, clearDiff, done) {
-  // backwards compatibility	
-  if(typeof clearDiff == 'function'){
-	  done = clearDiff;
-	  clearDiff = false;
+function outputDiff(streamOrBufOrPath1, streamOrBufOrPath2, destPath, outputIdenticalPixelsAsTransparent, done) {
+  // first format, without option
+  if(typeof outputIdenticalPixelsAsTransparent == 'function'){
+	  done = outputIdenticalPixelsAsTransparent;
+	  outputIdenticalPixelsAsTransparent = false;
   }
-  outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, options, function(err, res, diffMetric) {
+  outputDiffStream(streamOrBufOrPath1, streamOrBufOrPath2, outputIdenticalPixelsAsTransparent, function(err, res, diffMetric) {
     if (err) return done(err);
 
     res
