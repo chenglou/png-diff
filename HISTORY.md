@@ -2,6 +2,9 @@ Legend:
   - [I]: improvement
   - [F]: fix
 
+### 0.3.2 (January 26th 2016)
+- [I] New option to output identical pixels as transparent ones.
+
 ### 0.3.1 (August 17th 2015)
 - [I] Switch to using pngjs2. No API change.
 
